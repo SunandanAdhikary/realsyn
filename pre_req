@@ -1,0 +1,17 @@
+#!bin/sh
+# sudo -i
+apt install gfortran
+snap install cmake
+# cmake veriosn should be > 3.15 (3.18.4)
+pip3 install scipy
+pip3 install slycot
+pip3 install control
+pip3 install cvxopt
+pip3 install picos
+pip3 install matplotlib
+pip3 install numpy
+
+# then run
+# python3 realsyn.py -b 24 -s z3 -p > ouroutputs/ttc_5.txt
+# python3 realsyn.py -b <benchmark no> -s z3 -p > ouroutputs/<output file name>
+# benchmark 23= esp, 24= ttc output file name= "output system name _ number of steps"

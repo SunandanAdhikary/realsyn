@@ -96,16 +96,19 @@ def radius_without_r0(P, radius_dim, num_steps, lam):
 
 
 
-def get_overapproximate_rectangles(A, B, Q_multiplier, num_steps):
+def get_overapproximate_rectangles(A, B, KK, Q_multiplier, num_steps):
         A = np.array(A)
         B = np.array(B)
+        KK = np.array(KK)# our lqr
         dimension = len(A)
         u_dimension = len(B[0])
-        Q = Q_multiplier*np.eye(dimension)
-        R = np.eye(u_dimension)     
+        Q = Q_multiplier*np.eye(dimension)# we use same Q for ttc
+        R = np.eye(u_dimension)     # we use same R for ttc
         (X,L,G) = dare(A,B,Q,R) 
-
+        G = KK # replacing with our lqr
+        
         AK = (A-np.dot(B,G))
+        # AK = (A-np.dot(B,KK))# our lqr
         # print np.linalg.eigvals(AK)
         minimum_lam = max(abs(np.linalg.eigvals(AK)))
 
@@ -134,7 +137,7 @@ def get_overapproximate_rectangles(A, B, Q_multiplier, num_steps):
 
 def Dis_simulate(A,B,u_ref,X0):
         X = X0
-        dimension = len(X0)
+        dimension = len(X0)  
         for i in range(len(u_ref)):
                 cur_step = np.reshape(np.dot(A,X[:,-1]),(dimension,1)) + np.reshape(np.dot(B,u_ref[i]),(dimension,1))
                 X = np.append(X,cur_step,axis=1)

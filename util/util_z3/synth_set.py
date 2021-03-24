@@ -1,4 +1,4 @@
-from util_constraints import *
+from util.util_z3.util_constraints import *
 
 z3_precision = 20
 option_initial = True

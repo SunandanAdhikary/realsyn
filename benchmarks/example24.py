@@ -1,56 +1,73 @@
-import os.path
-import numpy as np
-import scipy.linalg as la
+from math import sqrt
 
-#pde
+#ttc
 def name():
-	return 'pde'
+	return 'ttc'
 
 def problem():
-
-	HERE = os.path.dirname(os.path.abspath(__file__))
-	filename_A = HERE+"/aux-matrices/PDE_A.txt"
-	filename_B = HERE+"/aux-matrices/PDE_B.txt"
-
-	# First read the continuous system from the txt file.
-	with open(filename_A, 'r') as f:
-	    A_conti = []
-	    for line in f: # read rest of lines
-	        A_conti.append([float(x) for x in line.split(',')])
-	with open(filename_B, 'r') as f:
-	    B_conti = []
-	    for line in f: # read rest of lines
-	        B_conti.append([float(x) for x in line.split(',')])
-	
-	time_step = 0.1
-	dim = len(A_conti[0])
-
-	# Discretize the system using matrix exponential
-
-	A_conti = np.array(A_conti)
-	B_conti = np.array(B_conti)
-
-	A = la.expm(A_conti * time_step)
-	B = np.dot( np.dot(np.linalg.inv(A_conti), (A - np.eye(dim))), B_conti)
-
-	u_space = (True, [(0.5, 1.0)])
-
-	safe_rec = (True,[(-1, 1) for i in range(1)] + [(None, None) for i in range(83)] )
-
+	A = [[1.0000, 0.1000, 0, 0],
+         [0, 1.0000, 0, 0],
+    [0.8327 , 0, 0.1673, 0.1000],
+    [2.5029, 0, -2.5029, 1.0000]]
+	B = [[0.0050],
+	[0.1000],
+    [0.0050],
+    [0.1000]]
+	KK = [[0, 0, 0.9171, 1.6356]]
+	x_dim = len(A[0])
+	u_dim = len(B[0])
+	u_bound = 72
+	u_space = (True, [(-u_bound, u_bound) for i in range(u_dim)])
+	perf = 0.3
+	safer = 0.65
+	safety_x1 = 25
+	safety_x2 = 30
+	goal_x1 = safety_x1*safer
+	# lb_goal_x1 = 19.3730 #*perf
+	# ub_goal_x2 = safety_x2 #*perf
+	goal_x2 = safety_x2*safer #*perf
+	init_x1 = safety_x1
+	init_x2 = safety_x2
+	safe_rec = (True,[[-safety_x1,safety_x1],
+				[-safety_x2,safety_x2],
+				[-safety_x1,safety_x1],
+				[-safety_x2,safety_x2]])
+	# target = (True,[[-goal_x1,goal_x1],
+	# 			[-goal_x2,goal_x2],
+	# 			[-goal_x1,goal_x1],
+	# 			[-goal_x2,goal_x2]])
+	# 4d: none
+# 	target = (True, [[14.1516 ,0.8032],
+#    [-5.7589 ,   0.8927],
+#    [14.9035 ,  21.5550],
+#    [-11.3498 ,  -4.6982]])
+	# 4d: same x,xhat center 
+	# target = (True, [[17.23 , 23.8816],
+	# [-13.3443 ,  -6.6928],
+	# [17.23 , 23.8816],
+	# [-13.3443 ,  -6.6928]])
+	# 2d: found inputs
+	# target = (True, [[-23.3111 ,4.8946],
+	# [-8.9398 ,  19.2659],
+	# [-15.9078 ,  -2.5088],
+	# [-1.5364 ,  11.8626]])
+	# 2d: found inputs
+	# target = (True, [[-23.3111 ,4.8946],
+	# [-8.9398 ,  19.2659],
+	# [-15.9078 ,  -2.5088],
+	# [-1.5364 ,  11.8626]])
+	# 2d: different scale: found inputs
+	target = (True, [[-20.4321 ,20.4761],
+	[-20.9025 ,  20.0056],
+	[-22.3492 , 22.3932],
+	[-22.8196 ,  21.9228]])
+	initial_size = 1.0 * sqrt(x_dim)
+	center = [0,0,0]
+	num_steps = 5
+	Theta = (True,[[-init_x1,init_x1],
+				[-init_x2,init_x2],
+				[-init_x1,init_x1],
+				[-init_x2,init_x2]])
 	avoid_list = None
-
-	target = safe_rec
-
-	initial_size = 0.01
-	# center = [0.0 for i in range(64)] + [0.001 for i in range(16)] + [-0.001 for i in range(4)]
-	center = None
-
-	num_steps = 10
-	u_dim = 1
-
 	avoid_dynamic = None
-
-	Theta = (True, [(0.0,0.0) for i in range(64)] + [(0.00, 0.001) for i in range(16)] + [(-0.001, 0.0) for i in range(4)] )
-
-	return initial_size, center, A, B, u_space, target, avoid_list, num_steps,u_dim, avoid_dynamic, Theta, safe_rec
-
+	return initial_size, center, A, B, KK,u_space, target, avoid_list, num_steps,u_dim, avoid_dynamic, Theta, safe_rec

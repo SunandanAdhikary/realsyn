@@ -15,7 +15,7 @@ def get_q_multiplier(n):
 
 def get_benchmark_params(n):
 	mod = importlib.import_module("example" + str(n))
-	_, _, A, _, _, _, _, _,u_dim, _, _, _ =  mod.problem()
+	_, _, A, _,_, _, _, _, _,u_dim, _, _, _ =  mod.problem()
 
 	return (len(A), u_dim, mod.name())
 

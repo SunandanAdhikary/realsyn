@@ -1,4 +1,4 @@
-from util_constraints import *
+from util.util_yices.util_constraints import *
 from yices import *
 
 option_initial = True

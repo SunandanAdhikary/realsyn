@@ -1,6 +1,6 @@
 from util.util_z3.realsyn_z3 import *
 from util.util_z3.safety_check_only import get_controller_nonincremental_z3
-from util.util_yices.realsyn_yices import *
+# from util.util_yices.realsyn_yices import *
 # from util.util_cvc4.realsyn_cvc4 import *
 from benchmarks.benchmarks import get_benchmark, get_q_multiplier
 import time
@@ -10,7 +10,7 @@ def pretty_print_controller(K, trajectory_radius_controller_list, covered_list):
 	print('\n ############## Printing Controller ##############\n')
 	print("K (common to all trjaectories) = " + str(K))
 	# print(K)
-	print("\nSub-controllers:\n")
+	print("\nSub-controllers\n")
 	l = len(covered_list)
 	for i in range(l):
 		print('********* ' + str(i) + ' *********')
@@ -34,14 +34,14 @@ def run_realsyn(solver, benchmark, nonincremental):
 	covered_list = []
 	num_iters = None
 
-	(initial_size, _, A, B, u_space, target, avoid_list, num_steps,u_dim, avoid_dynamic, Theta, safe_rec) = get_benchmark(benchmark)
+	(initial_size,_, A, B, KK, u_space, target, avoid_list, num_steps,u_dim, avoid_dynamic, Theta, safe_rec) = get_benchmark(benchmark)
 	q_multiplier = get_q_multiplier(benchmark)
 
 	if solver == 'z3':
 		if (benchmark in [22, 23, 24] and nonincremental):
 			(K, trajectory_radius_controller_list, covered_list, num_iters) = get_controller_nonincremental_z3(Theta, initial_size, A, B, u_dim, u_space, target, avoid_list, avoid_dynamic, safe_rec, num_steps, q_multiplier)
 		else:
-			(K, trajectory_radius_controller_list, covered_list, num_iters) = get_controller_z3(Theta, initial_size, A, B, u_dim, u_space, target, avoid_list, avoid_dynamic, safe_rec, num_steps, q_multiplier)
+			(K, trajectory_radius_controller_list, covered_list, num_iters) = get_controller_z3(Theta, initial_size, A, B, KK, u_dim, u_space, target, avoid_list, avoid_dynamic, safe_rec, num_steps, q_multiplier)# for our KK, model 23,24
 	elif solver == 'yices':
 		(K, trajectory_radius_controller_list, covered_list, num_iters) = get_controller_yices(Theta, initial_size, A, B, u_dim, u_space, target, avoid_list, avoid_dynamic, safe_rec, num_steps, q_multiplier)
 	elif solver == 'cvc4':

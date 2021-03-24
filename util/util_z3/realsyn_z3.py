@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 from cntrl.Kfunctions import *
-from synth_set import *
+from util.util_z3.synth_set import *
 import math
 from z3 import *
 
@@ -11,13 +11,13 @@ max_num_iters = 200
 print_detail = False
 # option_center = True
 
-def get_controller_z3(Theta, initial_size, A, B, u_dim, u_poly, target, avoid_list, avoid_list_dynamic, safe, num_steps, Q_multiplier):
+def get_controller_z3(Theta, initial_size, A, B, KK, u_dim, u_poly, target, avoid_list, avoid_list_dynamic, safe, num_steps, Q_multiplier):
 	#set safe to be None if you want to run the avoid_list version. Else set avoid_list to be None
 	
-	P, radius_dim, _, lam, G = get_overapproximate_rectangles(A, B, Q_multiplier, num_steps)
+	P, radius_dim, _, lam, G = get_overapproximate_rectangles(A, B, KK, Q_multiplier, num_steps)
 	radius_list = radius_without_r0(P, radius_dim, num_steps, lam)
-	K = G*(-1)
-	
+	# K = G*(-1) # also replaced with our lqr
+	K = KK
 	x_dim = len(radius_list[0])
 	sqrt_dim_inverse = 10000.0/(math.floor(math.sqrt(x_dim*100000000.0)))
 
@@ -70,9 +70,16 @@ def get_controller_z3(Theta, initial_size, A, B, u_dim, u_poly, target, avoid_li
 		if (s_check == sat):
 			m = s.model()
 			# print("model=", m)
-			trajectory = [[ (m[x[i][j]].numerator_as_long())*1.0/(m[x[i][j]].denominator_as_long()) for j in range(x_dim)] for i in range(num_steps+1)]
-			controller = [[ (m[u[i][j]].numerator_as_long())*1.0/(m[u[i][j]].denominator_as_long()) for j in range(u_dim)] for i in range(num_steps)]
-			rad = (m[r].numerator_as_long())*1.0/(m[r].denominator_as_long())
+			# [[ print(str((m[x[i][j]].numerator_as_long())*1.0/(m[x[i][j]].denominator_as_long()))) for j in range(x_dim)] for i in range(num_steps+1)]
+			###################
+			# trajectory = [[ (m[x[i][j]].numerator())*1.0/(m[x[i][j]].denominator()) for j in range(x_dim)] for i in range(num_steps+1)]
+			# controller = [[ (m[u[i][j]].numerator())*1.0/(m[u[i][j]].denominator()) for j in range(u_dim)] for i in range(num_steps)]
+			# rad = (m[r].numerator())*1.0/(m[r].denominator())
+			# init_point = trajectory[0]
+			############
+			trajectory = [[ (m[x[i][j]]) for j in range(x_dim)] for i in range(num_steps+1)]
+			controller = [[ (m[u[i][j]]) for j in range(u_dim)] for i in range(num_steps)]
+			rad = (m[r])
 			init_point = trajectory[0]
 			init_radius = [r_i*rad*sqrt_dim_inverse for r_i in radius_list[0]] #is the sqrt_2 needed ?
 			cover = []

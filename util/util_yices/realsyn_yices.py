@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 from cntrl.Kfunctions import *
-from synth_set import *
+from util.util_yices.synth_set import *
 import math
 from yices import *
 from ctypes import ( c_int32 )

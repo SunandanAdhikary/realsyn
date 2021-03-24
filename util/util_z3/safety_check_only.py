@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 from cntrl.Kfunctions import *
-from synth_set import *
+from util.util_z3.synth_set import *
 import math
 from z3 import *
 
